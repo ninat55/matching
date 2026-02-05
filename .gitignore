@@ -1,0 +1,11 @@
+.vscode/
+bin/
+lib/
+*.o
+*.exe
+
+# macOS junk?
+.DS_Store
+
+# Temporary files
+*~
