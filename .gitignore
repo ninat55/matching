@@ -6,7 +6,10 @@ venv/
 *.o
 *.exe
 
-# macOS junk?
+# Main executable
+stablematching
+
+# macOS junk
 .DS_Store
 
 # Temporary files

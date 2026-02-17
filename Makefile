@@ -5,14 +5,16 @@ PYTHON = venv/bin/python
 all: stablematching
 
 # Python preprocessing
-data/clean.csv: data/Untitledform.csv src/preprocessing.py
-	$(PYTHON) src/preprocessing.py data/Untitledform.csv data/clean.csv
+data/clean_p.csv: data/Untitledform.csv src/preprocessing.py
+	$(PYTHON) src/preprocessing.py data/Untitledform.csv data/clean_p.csv data/capacities.csv
 
-# C++ build
-stablematching: src/stablematching.cpp data/clean.csv
-	$(CXX) $(CXXFLAGS) -o src/stablematching src/stablematching.cpp
+# data/clean_r.csv: data/Untitledform.csv src/preprocessing.py
+# 	$(PYTHON) src/preprocessing.py data/Untitledform.csv data/clean_r.csv
 
-clean:	make --debug=b
-	rm -f src/stablematching data/clean.csv
+stablematching: src/algorithm.cpp data/clean_p.csv
+	$(CXX) $(CXXFLAGS) -o stablematching src/algorithm.cpp
+
+clean:
+	rm -f stablematching data/clean_p.csv
 
 .PHONY: all clean
