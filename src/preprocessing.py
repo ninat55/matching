@@ -1,61 +1,39 @@
 import sys
 import csv
-from number_parser import parse_ordinal
 
-def preprocessing(input_path, output_path, capacity_path):
-    with open(input_path, "r") as in_file, \
-         open(output_path, "w") as out_file, \
-         open(capacity_path, "w") as capacity_file:
-        
+def preprocessing(input_path, output_path):
+    with open(input_path, newline="", encoding="utf-8-sig") as in_file, \
+         open(output_path, "w", newline="") as out_file:
+
         reader = csv.reader(in_file)
         writer = csv.writer(out_file)
-        c_writer = csv.writer(capacity_file)
-
         header = next(reader)
 
-        try:
-            start_idx = next(i
-                for i, col in enumerate(header)
-                if col.strip().lower() == "name")
-        except StopIteration:
+        # Find the name column
+        name_idx = next(
+            (i for i, col in enumerate(header) if "name" in col.strip().lower()),
+            None
+        )
+        if name_idx is None:
             raise ValueError("Name column not found in CSV header")
-        
-        capacity_idx = None
-        new_header = ["name"]
-        
-        for i, col in enumerate(header[start_idx + 1:]):
-            col_name = extract_name(col)
-            if col_name == "capacity":
-                capacity_idx = i
-                c_writer.writerow(["name", "capacity"])
-            else:
-                new_header.append(col_name)
-        writer.writerow(new_header)
-        
+
+        # Find choice columns: anything with "choice" in the header after the name column
+        choice_indices = [
+            i for i, col in enumerate(header)
+            if i > name_idx and "choice" in col.strip().lower()
+        ]
+        if not choice_indices:
+            raise ValueError("No choice columns found in CSV header")
+
         for row in reader:
-            new_row = [row[start_idx]]
-            for i, col in enumerate(row[start_idx + 1:]):
-                if i == capacity_idx:
-                    c_writer.writerow([row[start_idx], True if col == "yes" else False])
-                else:
-                    new_row.append(parse_ordinal(col))
-            writer.writerow(new_row)
-
-def extract_name(col):
-    col = col.strip()
-
-    if "[" not in col or "]" not in col:
-        # we assume this must be 'capacity' column
-        return "capacity"
-
-    left = col.index("[")
-    right = col.index("]", left)
-
-    name = col[left + 1 : right].strip()
-    if not name:
-        raise ValueError(f"Empty name in brackets: '{col}'")
-
-    return name
+            name = row[name_idx].strip().lower()
+            if not name:
+                continue
+            choices = [row[i].strip().lower() for i in choice_indices if i < len(row) and row[i].strip()]
+            writer.writerow([name] + choices)
 
 if __name__ == "__main__":
-    preprocessing(sys.argv[1], sys.argv[2], sys.argv[3])
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <input_csv> <output_csv>")
+        sys.exit(1)
+    preprocessing(sys.argv[1], sys.argv[2])
