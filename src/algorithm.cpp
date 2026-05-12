@@ -16,11 +16,6 @@ using std::stringstream, std::ceil, std::pair, std::get, std::ostringstream, std
 
 map<int, string> PROPOSER_NAMES, RECEIVER_NAMES;
 
-
-// TO-DO: need to ensure all bigs get at least one little!
-// Maybe run many times on possible permutations of capacities and choose based on total compatibility?
-// Add utils file with compatibility-check that computes for a full matching, as well as for a single matching
-
 namespace matching {
 
 class Match {
